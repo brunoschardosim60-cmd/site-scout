@@ -204,12 +204,16 @@ const STATUSES: ProspectStatus[] = [
 const NOW = new Date("2026-08-17T12:00:00Z").getTime();
 const DAY = 86400000;
 
-/** Gera `perCity` empresas para CADA cidade cadastrada (10.000 por região). */
-export function buildCompanies(perCity = 10000): Company[] {
-  const rnd = mulberry32(20260817);
+export const PER_CITY = 10000;
+export const CITY_COUNT = CITIES.length;
+
+/** Gera as empresas de UMA cidade (determinístico por índice). */
+export function buildCityCompanies(cityIndex: number, perCity = PER_CITY): Company[] {
+  const loc = CITIES[cityIndex]!;
+  const rnd = mulberry32(20260817 + cityIndex * 7919);
   const list: Company[] = [];
-  let i = -1;
-  for (const loc of CITIES) {
+  let i = cityIndex * perCity - 1;
+  {
     for (let k = 0; k < perCity; k++) {
     i++;
     const seg = pick(SEGMENTS, rnd());
