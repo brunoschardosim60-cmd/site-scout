@@ -66,7 +66,14 @@ type Ctx = State & {
   addSegment: (name: string) => void;
   updateCompany: (id: string, patch: Partial<Company>) => void;
   setSeller: (name: string) => void;
+  /** Total teórico disponível na base gerada. */
+  totalAvailable: number;
+  /** Teto atual de empresas carregadas em memória. */
+  cap: number;
+  /** Aumenta o teto (carrega mais 5.000, 100 em 100). */
+  loadMoreCompanies: () => void;
   reset: () => void;
+
 };
 
 const StoreContext = createContext<Ctx | null>(null);
