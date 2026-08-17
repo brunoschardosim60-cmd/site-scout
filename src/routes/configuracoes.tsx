@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStore } from "@/lib/store";
-import { NEXA_DEFAULT, NEXA_KEY, getNexaBase } from "@/lib/nexa";
+import { NEXA_DEFAULT, NEXA_KEY, NEXA_PATHS, getNexaBase } from "@/lib/nexa";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/configuracoes")({
@@ -43,6 +43,13 @@ function ConfigPage() {
             URL de criação para onde o botão "Criar mini site" envia os dados do cliente selecionado.
           </p>
           <Input value={nexa} onChange={(e) => setNexa(e.target.value)} />
+          <div className="flex flex-wrap gap-2">
+            {NEXA_PATHS.map((o) => (
+              <Button key={o.value} size="sm" variant={nexa === o.value ? "secondary" : "outline"} onClick={() => setNexa(o.value)}>
+                {o.label}
+              </Button>
+            ))}
+          </div>
           <Button
             size="sm"
             onClick={() => {

@@ -13,7 +13,10 @@ export const NEXA_PATHS = [
 
 export function getNexaBase() {
   if (typeof localStorage === "undefined") return NEXA_DEFAULT;
-  return localStorage.getItem(NEXA_KEY) || NEXA_DEFAULT;
+  const saved = localStorage.getItem(NEXA_KEY);
+  // "/criar" não existe no Nexa (404) — corrige valores antigos salvos no navegador.
+  if (!saved || /\/criar\/?$/.test(saved)) return NEXA_DEFAULT;
+  return saved;
 }
 
 /** Payload enviado ao gerador de mini sites (Nexa). */
