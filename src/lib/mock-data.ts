@@ -278,6 +278,7 @@ export function buildCompanies(perCity = 50): Company[] {
           }
         : { hasSite: false },
     });
+    }
   }
   return list;
 }
