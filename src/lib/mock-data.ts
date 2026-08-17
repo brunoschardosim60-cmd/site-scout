@@ -282,15 +282,28 @@ function makeCompany(i: number, cityIndex: number): Company {
     });
     }
   }
-  return list;
+  return list[0]!;
 }
 
-/** Gera `perCity` empresas para CADA cidade (uso: geração completa de uma vez). */
-export function buildCompanies(perCity = PER_CITY): Company[] {
+/** Total teórico de empresas disponíveis. */
+export const TOTAL_COMPANIES = CITY_COUNT * PER_CITY;
+
+/**
+ * Gera um intervalo de empresas sob demanda (ex.: 100 em 100),
+ * sem materializar todo o banco em memória.
+ */
+export function buildCompaniesRange(start: number, count: number): Company[] {
   const out: Company[] = [];
-  for (let i = 0; i < CITIES.length; i++) out.push(...buildCityCompanies(i, perCity));
+  const end = Math.min(start + count, TOTAL_COMPANIES);
+  for (let i = start; i < end; i++) out.push(makeCompany(i, Math.floor(i / PER_CITY)));
   return out;
 }
+
+/** Empresas de UMA cidade (ou apenas parte dela). */
+export function buildCityCompanies(cityIndex: number, perCity = PER_CITY): Company[] {
+  return buildCompaniesRange(cityIndex * PER_CITY, Math.min(perCity, PER_CITY));
+}
+
 
 /** Histórico só das primeiras `max` empresas — evita milhões de objetos em memória. */
 export function buildActivities(companies: Company[], max = 4000): Activity[] {
