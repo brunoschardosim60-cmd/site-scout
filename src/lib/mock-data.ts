@@ -207,15 +207,13 @@ const DAY = 86400000;
 export const PER_CITY = 10000;
 export const CITY_COUNT = CITIES.length;
 
-/** Gera as empresas de UMA cidade (determinístico por índice). */
-export function buildCityCompanies(cityIndex: number, perCity = PER_CITY): Company[] {
+/** Cria UMA empresa determinística a partir do índice global. */
+function makeCompany(i: number, cityIndex: number): Company {
   const loc = CITIES[cityIndex]!;
-  const rnd = mulberry32(20260817 + cityIndex * 7919);
+  const rnd = mulberry32(20260817 + cityIndex * 7919 + i * 2654435761);
   const list: Company[] = [];
-  let i = cityIndex * perCity - 1;
   {
-    for (let k = 0; k < perCity; k++) {
-    i++;
+    {
     const seg = pick(SEGMENTS, rnd());
     const district = pick(loc.districts, rnd());
     const name = `${pick(PREFIX[seg] ?? ["Empresa"], rnd())} ${pick(SUFFIX, rnd())}`;
