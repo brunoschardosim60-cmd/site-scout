@@ -24,8 +24,9 @@ type State = {
   patches: Record<string, Partial<Company>>;
 };
 
+/** Lote inicial leve (renderiza rápido); o restante entra em background no cliente. */
 function seed(): State {
-  const companies = buildCompanies();
+  const companies = buildCityCompanies(0, 400);
   return {
     companies,
     activities: buildActivities(companies),
