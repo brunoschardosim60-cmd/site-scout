@@ -188,7 +188,17 @@ export function buildCompanies(count = 96): Company[] {
       .toLowerCase()
       .normalize("NFD")
       .replace(/[^a-z0-9]+/g, "");
+    const whatsapp = rnd() > 0.18 ? `55519${String(80000000 + i * 137).slice(0, 8)}` : undefined;
+    const instagram = rnd() > 0.3 ? `@${slug}` : undefined;
+    const facebook = rnd() > 0.6 ? `/${slug}` : undefined;
+    const lastContactAt = contacted
+      ? new Date(NOW - Math.floor(rnd() * 40) * DAY).toISOString()
+      : undefined;
     list.push({
+      ...(whatsapp ? { whatsapp } : {}),
+      ...(instagram ? { instagram } : {}),
+      ...(facebook ? { facebook } : {}),
+      ...(lastContactAt ? { lastContactAt } : {}),
       id: `c${i + 1}`,
       name,
       legalName: `${name} Ltda`,
@@ -196,7 +206,6 @@ export function buildCompanies(count = 96): Company[] {
       ownerName: pick(OWNERS, rnd()),
       ownerRole: "Proprietário(a)",
       phone: `(51) 3${String(1000 + i).slice(0, 3)}-${String(1000 + i * 7).slice(0, 4)}`,
-      whatsapp: rnd() > 0.18 ? `55519${String(80000000 + i * 137).slice(0, 8)}` : undefined,
       email: `contato@${slug}.com.br`,
       address: `Rua ${pick(SUFFIX, rnd())}, ${100 + Math.floor(rnd() * 1800)}`,
       district,
@@ -204,13 +213,8 @@ export function buildCompanies(count = 96): Company[] {
       state: loc.state,
       zip: `9${String(2000 + i).slice(0, 4)}-${String(100 + (i % 800)).slice(0, 3)}`,
       segment: seg,
-      instagram: rnd() > 0.3 ? `@${slug}` : undefined,
-      facebook: rnd() > 0.6 ? `/${slug}` : undefined,
       mapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(name + " " + loc.city)}`,
       createdAt: new Date(NOW - Math.floor(rnd() * 120) * DAY).toISOString(),
-      lastContactAt: contacted
-        ? new Date(NOW - Math.floor(rnd() * 40) * DAY).toISOString()
-        : undefined,
       lat: loc.lat + (rnd() - 0.5) * 0.06,
       lng: loc.lng + (rnd() - 0.5) * 0.06,
       rating: Math.round((3.4 + rnd() * 1.6) * 10) / 10,
