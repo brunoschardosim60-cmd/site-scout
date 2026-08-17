@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as DisparoRouteImport } from './routes/disparo'
 import { Route as FollowupsRouteImport } from './routes/followups'
 import { Route as MapaRouteImport } from './routes/mapa'
 import { Route as MensagensRouteImport } from './routes/mensagens'
@@ -28,6 +29,11 @@ const IndexRoute = IndexRouteImport.update({
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisparoRoute = DisparoRouteImport.update({
+  id: '/disparo',
+  path: '/disparo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FollowupsRoute = FollowupsRouteImport.update({
@@ -74,6 +80,7 @@ const EmpresasIdRoute = EmpresasIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/disparo': typeof DisparoRoute
   '/followups': typeof FollowupsRoute
   '/mapa': typeof MapaRoute
   '/mensagens': typeof MensagensRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/disparo': typeof DisparoRoute
   '/followups': typeof FollowupsRoute
   '/mapa': typeof MapaRoute
   '/mensagens': typeof MensagensRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/disparo': typeof DisparoRoute
   '/followups': typeof FollowupsRoute
   '/mapa': typeof MapaRoute
   '/mensagens': typeof MensagensRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/configuracoes'
+    | '/disparo'
     | '/followups'
     | '/mapa'
     | '/mensagens'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/configuracoes'
+    | '/disparo'
     | '/followups'
     | '/mapa'
     | '/mensagens'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/configuracoes'
+    | '/disparo'
     | '/followups'
     | '/mapa'
     | '/mensagens'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  DisparoRoute: typeof DisparoRoute
   FollowupsRoute: typeof FollowupsRoute
   MapaRoute: typeof MapaRoute
   MensagensRoute: typeof MensagensRoute
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/configuracoes'
       preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disparo': {
+      id: '/disparo'
+      path: '/disparo'
+      fullPath: '/disparo'
+      preLoaderRoute: typeof DisparoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/followups': {
@@ -238,6 +258,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  DisparoRoute: DisparoRoute,
   FollowupsRoute: FollowupsRoute,
   MapaRoute: MapaRoute,
   MensagensRoute: MensagensRoute,
