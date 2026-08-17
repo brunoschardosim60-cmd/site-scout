@@ -1,8 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Activity, Company, FollowUp, MessageTemplate, Proposal, ProspectStatus } from "./types";
-import { buildActivities, buildCompanies, buildFollowUps, buildTemplates, SEGMENTS } from "./mock-data";
+import {
+  buildActivities,
+  buildCityCompanies,
+  buildFollowUps,
+  buildTemplates,
+  CITY_COUNT,
+  PER_CITY,
+  SEGMENTS,
+} from "./mock-data";
 
-const KEY = "prospecta.state.v4";
+const KEY = "prospecta.state.v5";
 
 type State = {
   companies: Company[];
