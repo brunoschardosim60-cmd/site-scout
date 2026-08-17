@@ -7,6 +7,7 @@ export const NEXA_DEFAULT = "https://nexa-xi-puce.vercel.app/painel/novo";
 /** Caminhos válidos conhecidos no gerador Nexa. */
 export const NEXA_PATHS = [
   { value: "https://nexa-xi-puce.vercel.app/painel/novo", label: "Criar novo mini-site" },
+  { value: "http://localhost:5173/painel/novo", label: "Criar novo mini-site (Localhost)" },
   { value: "https://nexa-xi-puce.vercel.app/painel", label: "Painel" },
   { value: "https://nexa-xi-puce.vercel.app/painel/clientes", label: "Clientes" },
   { value: "https://nexa-xi-puce.vercel.app/painel/modelos", label: "Modelos" },
@@ -105,6 +106,14 @@ export function logoSvg(company: Company) {
 }
 
 export function logoDataUrl(company: Company) {
+  if (company.site.hasSite && company.site.url) {
+    try {
+      const hostname = new URL(company.site.url).hostname;
+      return `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+    } catch {
+      // Ignora erro de URL inválida e cai no fallback SVG
+    }
+  }
   return `data:image/svg+xml;utf8,${encodeURIComponent(logoSvg(company))}`;
 }
 
