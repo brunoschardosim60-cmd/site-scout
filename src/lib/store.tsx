@@ -73,6 +73,10 @@ const StoreContext = createContext<Ctx | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>(() => seed());
+  const [cap, setCap] = useState(DEFAULT_CAP);
+  const capRef = useRef(cap);
+  capRef.current = cap;
+
 
   useEffect(() => {
     try {
