@@ -15,6 +15,7 @@ import { Route as MapaRouteImport } from './routes/mapa'
 import { Route as MensagensRouteImport } from './routes/mensagens'
 import { Route as PropostasRouteImport } from './routes/propostas'
 import { Route as ProspeccaoRouteImport } from './routes/prospeccao'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasIdRouteImport } from './routes/empresas.$id'
 
@@ -48,6 +49,11 @@ const ProspeccaoRoute = ProspeccaoRouteImport.update({
   path: '/prospeccao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
   id: '/empresas/',
   path: '/empresas/',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/mensagens': typeof MensagensRoute
   '/propostas': typeof PropostasRoute
   '/prospeccao': typeof ProspeccaoRoute
+  '/relatorios': typeof RelatoriosRoute
   '/empresas/$id': typeof EmpresasIdRoute
   '/empresas/': typeof EmpresasIndexRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/mensagens': typeof MensagensRoute
   '/propostas': typeof PropostasRoute
   '/prospeccao': typeof ProspeccaoRoute
+  '/relatorios': typeof RelatoriosRoute
   '/empresas/$id': typeof EmpresasIdRoute
   '/empresas': typeof EmpresasIndexRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/mensagens': typeof MensagensRoute
   '/propostas': typeof PropostasRoute
   '/prospeccao': typeof ProspeccaoRoute
+  '/relatorios': typeof RelatoriosRoute
   '/empresas/$id': typeof EmpresasIdRoute
   '/empresas/': typeof EmpresasIndexRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/mensagens'
     | '/propostas'
     | '/prospeccao'
+    | '/relatorios'
     | '/empresas/$id'
     | '/empresas/'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/mensagens'
     | '/propostas'
     | '/prospeccao'
+    | '/relatorios'
     | '/empresas/$id'
     | '/empresas'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/mensagens'
     | '/propostas'
     | '/prospeccao'
+    | '/relatorios'
     | '/empresas/$id'
     | '/empresas/'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   MensagensRoute: typeof MensagensRoute
   PropostasRoute: typeof PropostasRoute
   ProspeccaoRoute: typeof ProspeccaoRoute
+  RelatoriosRoute: typeof RelatoriosRoute
   EmpresasIdRoute: typeof EmpresasIdRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProspeccaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/empresas/': {
       id: '/empresas/'
       path: '/empresas'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   MensagensRoute: MensagensRoute,
   PropostasRoute: PropostasRoute,
   ProspeccaoRoute: ProspeccaoRoute,
+  RelatoriosRoute: RelatoriosRoute,
   EmpresasIdRoute: EmpresasIdRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
 }
