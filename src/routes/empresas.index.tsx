@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CompanyLogoCell } from "@/components/CompanyLogo";
 import { downloadLogosZip } from "@/lib/nexa";
 import { useStore } from "@/lib/store";
-import { scoreCompany } from "@/lib/scoring";
+import { completeness, scoreCompany } from "@/lib/scoring";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/empresas/")({
@@ -41,7 +41,7 @@ type Sort =
 function EmpresasPage() {
   const { companies, logContact } = useStore();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  const [sort, setSort] = useState<Sort>("score_desc");
+  const [sort, setSort] = useState<Sort>("simples_completa");
   const [limit, setLimit] = useState(200);
   const [zipping, setZipping] = useState(false);
 
@@ -50,6 +50,14 @@ function EmpresasPage() {
     const sorted = [...list];
     sorted.sort((a, b) => {
       switch (sort) {
+        case "simples_completa":
+          return completeness(a) - completeness(b) || (a.rating ?? 0) - (b.rating ?? 0);
+        case "completa_simples":
+          return completeness(b) - completeness(a) || (b.rating ?? 0) - (a.rating ?? 0);
+        case "avaliacao_asc":
+          return (a.rating ?? 0) - (b.rating ?? 0) || (a.reviews ?? 0) - (b.reviews ?? 0);
+        case "avaliacao_desc":
+          return (b.rating ?? 0) - (a.rating ?? 0) || (b.reviews ?? 0) - (a.reviews ?? 0);
         case "score_asc":
           return scoreCompany(a).score - scoreCompany(b).score;
         case "cidade":
