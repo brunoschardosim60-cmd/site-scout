@@ -246,10 +246,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setState((s) =>
           s.segments.includes(name) ? s : { ...s, segments: [...s.segments, name].sort() },
         ),
+      totalAvailable: TOTAL_COMPANIES,
+      cap,
+      loadMoreCompanies: () => setCap((c) => Math.min(c + CAP_STEP, MAX_CAP, TOTAL_COMPANIES)),
       reset: () => setState(seed()),
     }),
-    [state, patchCompany, pushActivity],
+    [state, cap, patchCompany, pushActivity],
   );
+
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
