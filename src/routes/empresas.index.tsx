@@ -39,7 +39,7 @@ type Sort =
   | "nunca_contatados";
 
 function EmpresasPage() {
-  const { companies, logContact } = useStore();
+  const { companies, logContact, cap, totalAvailable, loadMoreCompanies } = useStore();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<Sort>("simples_completa");
   const [limit, setLimit] = useState(200);
@@ -229,16 +229,23 @@ function EmpresasPage() {
           {rows.length === 0 && (
             <p className="p-6 text-center text-sm text-muted-foreground">Nenhuma empresa com esses filtros.</p>
           )}
-          {visible.length < rows.length && (
-            <div className="flex items-center justify-center gap-3 p-4">
-              <span className="text-xs text-muted-foreground">
-                Mostrando {visible.length} de {rows.length}
-              </span>
+          <div className="flex flex-wrap items-center justify-center gap-3 p-4">
+            <span className="text-xs text-muted-foreground">
+              Mostrando {visible.length} de {rows.length} · {companies.length.toLocaleString("pt-BR")} carregadas
+              (carregando 100 em 100)
+            </span>
+            {visible.length < rows.length && (
               <Button variant="secondary" size="sm" onClick={() => setLimit((l) => l + 200)}>
                 Carregar mais 200
               </Button>
-            </div>
-          )}
+            )}
+            {companies.length >= cap && cap < totalAvailable && (
+              <Button variant="outline" size="sm" onClick={loadMoreCompanies}>
+                Carregar mais empresas na memória
+              </Button>
+            )}
+          </div>
+
         </div>
       </div>
     </AppShell>

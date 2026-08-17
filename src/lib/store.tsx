@@ -1,16 +1,22 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Activity, Company, FollowUp, MessageTemplate, Proposal, ProspectStatus } from "./types";
 import {
   buildActivities,
-  buildCityCompanies,
+  buildCompaniesRange,
   buildFollowUps,
   buildTemplates,
-  CITY_COUNT,
-  PER_CITY,
   SEGMENTS,
+  TOTAL_COMPANIES,
 } from "./mock-data";
 
-const KEY = "prospecta.state.v5";
+const KEY = "prospecta.state.v6";
+
+/** Carregamento em etapas: 100 empresas por vez, com teto de memória. */
+const CHUNK = 100;
+const INITIAL = 300;
+const DEFAULT_CAP = 5000;
+const CAP_STEP = 5000;
+const MAX_CAP = 50000;
 
 type State = {
   companies: Company[];
@@ -24,9 +30,9 @@ type State = {
   patches: Record<string, Partial<Company>>;
 };
 
-/** Lote inicial leve (renderiza rápido); o restante entra em background no cliente. */
+/** Lote inicial leve (renderiza rápido); o restante entra em background, 100 em 100. */
 function seed(): State {
-  const companies = buildCityCompanies(0, 400);
+  const companies = buildCompaniesRange(0, INITIAL);
   return {
     companies,
     activities: buildActivities(companies),
@@ -44,6 +50,7 @@ type Persisted = Pick<State, "proposals" | "templates" | "segments" | "seller" |
   followups: FollowUp[];
 };
 
+
 type Ctx = State & {
   setStatus: (companyId: string, status: ProspectStatus) => void;
   logContact: (
@@ -59,13 +66,24 @@ type Ctx = State & {
   addSegment: (name: string) => void;
   updateCompany: (id: string, patch: Partial<Company>) => void;
   setSeller: (name: string) => void;
+  /** Total teórico disponível na base gerada. */
+  totalAvailable: number;
+  /** Teto atual de empresas carregadas em memória. */
+  cap: number;
+  /** Aumenta o teto (carrega mais 5.000, 100 em 100). */
+  loadMoreCompanies: () => void;
   reset: () => void;
+
 };
 
 const StoreContext = createContext<Ctx | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>(() => seed());
+  const [cap, setCap] = useState(DEFAULT_CAP);
+  const capRef = useRef(cap);
+  capRef.current = cap;
+
 
   useEffect(() => {
     try {
@@ -86,28 +104,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  /** Gera 10.000 empresas por cidade em background, uma cidade por vez. */
+  /** Carrega as empresas em etapas de 100, até o teto atual (evita estourar a memória). */
   useEffect(() => {
     let cancelled = false;
-    let city = 0;
-    let timer: ReturnType<typeof setTimeout>;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const step = () => {
-      if (cancelled || city >= CITY_COUNT) return;
-      const idx = city++;
-      const batch = buildCityCompanies(idx, PER_CITY);
+      if (cancelled) return;
       setState((s) => {
+        const start = s.companies.length;
+        const limit = Math.min(capRef.current, TOTAL_COMPANIES);
+        if (start >= limit) return s;
+        const batch = buildCompaniesRange(start, Math.min(CHUNK, limit - start));
         const patched = batch.map((c) => (s.patches[c.id] ? { ...c, ...s.patches[c.id] } : c));
-        const rest = idx === 0 ? [] : s.companies;
-        return { ...s, companies: idx === 0 ? patched : [...rest, ...patched] };
+        return { ...s, companies: [...s.companies, ...patched] };
       });
-      timer = setTimeout(step, 30);
+      timer = setTimeout(step, 60);
     };
     timer = setTimeout(step, 300);
     return () => {
       cancelled = true;
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     };
   }, []);
+
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -227,10 +246,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setState((s) =>
           s.segments.includes(name) ? s : { ...s, segments: [...s.segments, name].sort() },
         ),
+      totalAvailable: TOTAL_COMPANIES,
+      cap,
+      loadMoreCompanies: () => setCap((c) => Math.min(c + CAP_STEP, MAX_CAP, TOTAL_COMPANIES)),
       reset: () => setState(seed()),
     }),
-    [state, patchCompany, pushActivity],
+    [state, cap, patchCompany, pushActivity],
   );
+
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
