@@ -203,6 +203,16 @@ function EmpresasPage() {
           {rows.length === 0 && (
             <p className="p-6 text-center text-sm text-muted-foreground">Nenhuma empresa com esses filtros.</p>
           )}
+          {visible.length < rows.length && (
+            <div className="flex items-center justify-center gap-3 p-4">
+              <span className="text-xs text-muted-foreground">
+                Mostrando {visible.length} de {rows.length}
+              </span>
+              <Button variant="secondary" size="sm" onClick={() => setLimit((l) => l + 200)}>
+                Carregar mais 200
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </AppShell>
