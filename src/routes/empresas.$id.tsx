@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Check, MessageCircle, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { NexaActions } from "@/components/CompanyPanel";
+import { CompanyLogo, DownloadLogoButtons } from "@/components/CompanyLogo";
 import { OpportunityBadge, ScoreBadge, StatusBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -187,6 +188,10 @@ function CompanyProfile() {
               Abre o Nexa já na etapa de criação, com nome, contatos, endereço, redes, cor da marca e logo
               gerada a partir da identidade da empresa.
             </p>
+            <div className="mt-3 flex items-center gap-3">
+              <CompanyLogo company={company} size={64} />
+              <DownloadLogoButtons company={company} />
+            </div>
             <div className="mt-3">
               <NexaActions company={company} />
             </div>
