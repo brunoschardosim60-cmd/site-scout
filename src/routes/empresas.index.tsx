@@ -134,6 +134,7 @@ function EmpresasPage() {
                 <th className="p-3">Cidade</th>
                 <th className="p-3">Site</th>
                 <th className="p-3">WhatsApp</th>
+                <th className="p-3">Avaliação</th>
                 <th className="p-3">Score</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">Último contato</th>
