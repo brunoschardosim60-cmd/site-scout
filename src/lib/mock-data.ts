@@ -287,6 +287,13 @@ export function buildCityCompanies(cityIndex: number, perCity = PER_CITY): Compa
   return list;
 }
 
+/** Gera `perCity` empresas para CADA cidade (uso: geração completa de uma vez). */
+export function buildCompanies(perCity = PER_CITY): Company[] {
+  const out: Company[] = [];
+  for (let i = 0; i < CITIES.length; i++) out.push(...buildCityCompanies(i, perCity));
+  return out;
+}
+
 /** Histórico só das primeiras `max` empresas — evita milhões de objetos em memória. */
 export function buildActivities(companies: Company[], max = 4000): Activity[] {
   const acts: Activity[] = [];
