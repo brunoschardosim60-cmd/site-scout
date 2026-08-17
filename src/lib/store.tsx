@@ -26,8 +26,14 @@ function seed(): State {
     templates: buildTemplates(),
     segments: SEGMENTS,
     seller: "Bruno",
+    patches: {},
   };
 }
+
+/** O que realmente vai para o localStorage (empresas/atividades em massa ficam só em memória). */
+type Persisted = Pick<State, "proposals" | "templates" | "segments" | "seller" | "patches"> & {
+  followups: FollowUp[];
+};
 
 type Ctx = State & {
   setStatus: (companyId: string, status: ProspectStatus) => void;
