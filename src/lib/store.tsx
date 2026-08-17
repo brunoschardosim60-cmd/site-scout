@@ -60,11 +60,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(state));
-    } catch {
-      /* ignore */
-    }
+    const t = setTimeout(() => {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(state));
+      } catch {
+        /* quota excedida — segue em memória */
+      }
+    }, 600);
+    return () => clearTimeout(t);
   }, [state]);
 
   const patchCompany = useCallback((id: string, patch: Partial<Company>) => {
