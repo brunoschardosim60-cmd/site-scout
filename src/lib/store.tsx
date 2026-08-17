@@ -86,6 +86,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  /** Gera 10.000 empresas por cidade em background, uma cidade por vez. */
+  useEffect(() => {
+    let cancelled = false;
+    let city = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const step = () => {
+      if (cancelled || city >= CITY_COUNT) return;
+      const idx = city++;
+      const batch = buildCityCompanies(idx, PER_CITY);
+      setState((s) => {
+        const patched = batch.map((c) => (s.patches[c.id] ? { ...c, ...s.patches[c.id] } : c));
+        const rest = idx === 0 ? [] : s.companies;
+        return { ...s, companies: idx === 0 ? patched : [...rest, ...patched] };
+      });
+      timer = setTimeout(step, 30);
+    };
+    timer = setTimeout(step, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, []);
+
   useEffect(() => {
     const t = setTimeout(() => {
       try {
