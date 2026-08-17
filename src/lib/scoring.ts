@@ -98,6 +98,25 @@ export function opportunityOf(c: Company): Opportunity {
   return "baixa";
 }
 
+/** 0 = presença digital mais simples, 10 = mais completa. */
+export function completeness(c: Company): number {
+  const s = c.site;
+  let n = 0;
+  if (s.hasSite) n += 2;
+  if (s.hasSite) {
+    if (s.reachable !== false) n += 1;
+    if (s.responsive) n += 1;
+    if (s.looksUpdated) n += 1;
+    if (s.https) n += 1;
+    if (s.professional) n += 1;
+    if (s.contactForm) n += 0.5;
+    if (s.whatsappButton) n += 0.5;
+  }
+  if (c.whatsapp) n += 0.5;
+  if (c.instagram) n += 0.5;
+  return n;
+}
+
 export function scoreTone(score: number) {
   if (score >= 85) return { label: "Excelente oportunidade", className: "text-score-high" };
   if (score >= 65) return { label: "Boa oportunidade", className: "text-score-mid" };

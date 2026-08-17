@@ -204,12 +204,16 @@ const STATUSES: ProspectStatus[] = [
 const NOW = new Date("2026-08-17T12:00:00Z").getTime();
 const DAY = 86400000;
 
-/** Gera `perCity` empresas para CADA cidade cadastrada (1000 por região). */
-export function buildCompanies(perCity = 1000): Company[] {
-  const rnd = mulberry32(20260817);
+export const PER_CITY = 10000;
+export const CITY_COUNT = CITIES.length;
+
+/** Gera as empresas de UMA cidade (determinístico por índice). */
+export function buildCityCompanies(cityIndex: number, perCity = PER_CITY): Company[] {
+  const loc = CITIES[cityIndex]!;
+  const rnd = mulberry32(20260817 + cityIndex * 7919);
   const list: Company[] = [];
-  let i = -1;
-  for (const loc of CITIES) {
+  let i = cityIndex * perCity - 1;
+  {
     for (let k = 0; k < perCity; k++) {
     i++;
     const seg = pick(SEGMENTS, rnd());
@@ -283,9 +287,17 @@ export function buildCompanies(perCity = 1000): Company[] {
   return list;
 }
 
-export function buildActivities(companies: Company[]): Activity[] {
+/** Gera `perCity` empresas para CADA cidade (uso: geração completa de uma vez). */
+export function buildCompanies(perCity = PER_CITY): Company[] {
+  const out: Company[] = [];
+  for (let i = 0; i < CITIES.length; i++) out.push(...buildCityCompanies(i, perCity));
+  return out;
+}
+
+/** Histórico só das primeiras `max` empresas — evita milhões de objetos em memória. */
+export function buildActivities(companies: Company[], max = 4000): Activity[] {
   const acts: Activity[] = [];
-  companies.forEach((c, i) => {
+  companies.slice(0, max).forEach((c, i) => {
     if (!c.lastContactAt) return;
     const base = new Date(c.lastContactAt).getTime();
     acts.push({
@@ -322,10 +334,10 @@ export function buildActivities(companies: Company[]): Activity[] {
   return acts;
 }
 
-export function buildFollowUps(companies: Company[]): FollowUp[] {
+export function buildFollowUps(companies: Company[], max = 4000): FollowUp[] {
   const rnd = mulberry32(7);
   const out: FollowUp[] = [];
-  companies.forEach((c, i) => {
+  companies.slice(0, max).forEach((c, i) => {
     if (c.status === "nao_contatado" || c.status === "cliente_fechado") return;
     if (rnd() > 0.35) return;
     const offset = Math.floor(rnd() * 8) - 3;

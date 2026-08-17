@@ -1,8 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Activity, Company, FollowUp, MessageTemplate, Proposal, ProspectStatus } from "./types";
-import { buildActivities, buildCompanies, buildFollowUps, buildTemplates, SEGMENTS } from "./mock-data";
+import {
+  buildActivities,
+  buildCityCompanies,
+  buildFollowUps,
+  buildTemplates,
+  CITY_COUNT,
+  PER_CITY,
+  SEGMENTS,
+} from "./mock-data";
 
-const KEY = "prospecta.state.v4";
+const KEY = "prospecta.state.v5";
 
 type State = {
   companies: Company[];
@@ -16,8 +24,9 @@ type State = {
   patches: Record<string, Partial<Company>>;
 };
 
+/** Lote inicial leve (renderiza rápido); o restante entra em background no cliente. */
 function seed(): State {
-  const companies = buildCompanies();
+  const companies = buildCityCompanies(0, 400);
   return {
     companies,
     activities: buildActivities(companies),
@@ -75,6 +84,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
+  }, []);
+
+  /** Gera 10.000 empresas por cidade em background, uma cidade por vez. */
+  useEffect(() => {
+    let cancelled = false;
+    let city = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const step = () => {
+      if (cancelled || city >= CITY_COUNT) return;
+      const idx = city++;
+      const batch = buildCityCompanies(idx, PER_CITY);
+      setState((s) => {
+        const patched = batch.map((c) => (s.patches[c.id] ? { ...c, ...s.patches[c.id] } : c));
+        const rest = idx === 0 ? [] : s.companies;
+        return { ...s, companies: idx === 0 ? patched : [...rest, ...patched] };
+      });
+      timer = setTimeout(step, 30);
+    };
+    timer = setTimeout(step, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
