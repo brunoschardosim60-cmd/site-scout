@@ -2,11 +2,21 @@ import type { Company } from "./types";
 import { opportunityOf, scoreCompany } from "./scoring";
 
 export const NEXA_KEY = "prospecta.nexa.baseurl";
-export const NEXA_DEFAULT = "https://nexa-xi-puce.vercel.app/criar";
+export const NEXA_DEFAULT = "https://nexa-xi-puce.vercel.app/painel";
+
+/** Caminhos válidos conhecidos no gerador Nexa. */
+export const NEXA_PATHS = [
+  { value: "https://nexa-xi-puce.vercel.app/painel", label: "Painel (criar mini site)" },
+  { value: "https://nexa-xi-puce.vercel.app/cadastro", label: "Cadastro" },
+  { value: "https://nexa-xi-puce.vercel.app/modelos", label: "Modelos" },
+];
 
 export function getNexaBase() {
   if (typeof localStorage === "undefined") return NEXA_DEFAULT;
-  return localStorage.getItem(NEXA_KEY) || NEXA_DEFAULT;
+  const saved = localStorage.getItem(NEXA_KEY);
+  // "/criar" não existe no Nexa (404) — corrige valores antigos salvos no navegador.
+  if (!saved || /\/criar\/?$/.test(saved)) return NEXA_DEFAULT;
+  return saved;
 }
 
 /** Payload enviado ao gerador de mini sites (Nexa). */
@@ -43,7 +53,7 @@ export function nexaPayload(company: Company, seller: string) {
     marca: {
       cor_primaria: company.brandColor,
       iniciais: company.logoText,
-      logo_url: logoDataUrl(company),
+      logo_svg: logoSvg(company),
     },
     prospeccao: {
       score,
@@ -78,7 +88,6 @@ export function nexaUrl(company: Company, seller: string) {
   if (company.mapsUrl) url.searchParams.set("maps", company.mapsUrl);
   url.searchParams.set("cor", company.brandColor);
   url.searchParams.set("iniciais", company.logoText);
-  url.searchParams.set("logo", logoDataUrl(company));
   url.searchParams.set("template", "mini-site");
   url.searchParams.set("data", b64(JSON.stringify(payload)));
   return url.toString();
