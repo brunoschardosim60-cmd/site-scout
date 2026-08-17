@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useStore } from "@/lib/store";
 import { renderTemplate, scoreCompany } from "@/lib/scoring";
 import { download } from "@/lib/nexa";
-import { CITIES_BY_STATE, STATES } from "@/lib/geo";
+import { CITIES_BY_STATE, STATE_LIST } from "@/lib/geo";
 import type { Company } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -135,7 +135,7 @@ function DisparoPage() {
                 className="h-9 rounded-md border border-input bg-background px-2 text-sm"
               >
                 <option value="">Todos estados</option>
-                {STATES.map((s) => (
+                {STATE_LIST.map((s) => (
                   <option key={s} value={s}>
                     {s}
                   </option>
