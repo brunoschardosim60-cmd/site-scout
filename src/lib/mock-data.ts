@@ -139,6 +139,10 @@ const COLORS = [
   "#a16207",
 ];
 
+function pick<T>(arr: readonly T[], r: number): T {
+  return arr[Math.floor(r * arr.length) % arr.length] as T;
+}
+
 function mulberry32(seed: number) {
   return function () {
     seed |= 0;
@@ -172,13 +176,13 @@ export function buildCompanies(count = 96): Company[] {
   const rnd = mulberry32(20260817);
   const list: Company[] = [];
   for (let i = 0; i < count; i++) {
-    const seg = SEGMENTS[Math.floor(rnd() * SEGMENTS.length)];
-    const loc = CITIES[Math.floor(rnd() * CITIES.length)];
-    const district = loc.districts[Math.floor(rnd() * loc.districts.length)];
-    const name = `${PREFIX[seg][Math.floor(rnd() * PREFIX[seg].length)]} ${SUFFIX[Math.floor(rnd() * SUFFIX.length)]}`;
+    const seg = pick(SEGMENTS, rnd());
+    const loc = pick(CITIES, rnd());
+    const district = pick(loc.districts, rnd());
+    const name = `${pick(PREFIX[seg] ?? ["Empresa"], rnd())} ${pick(SUFFIX, rnd())}`;
     const hasSite = rnd() > 0.42;
     const quality = rnd();
-    const status = STATUSES[Math.floor(rnd() * STATUSES.length)];
+    const status = pick(STATUSES, rnd());
     const contacted = status !== "nao_contatado";
     const slug = name
       .toLowerCase()
@@ -189,12 +193,12 @@ export function buildCompanies(count = 96): Company[] {
       name,
       legalName: `${name} Ltda`,
       cnpj: `${10 + (i % 80)}.${String(100 + i).slice(0, 3)}.${String(200 + i).slice(0, 3)}/0001-${String(10 + (i % 80))}`,
-      ownerName: OWNERS[Math.floor(rnd() * OWNERS.length)],
+      ownerName: pick(OWNERS, rnd()),
       ownerRole: "Proprietário(a)",
       phone: `(51) 3${String(1000 + i).slice(0, 3)}-${String(1000 + i * 7).slice(0, 4)}`,
       whatsapp: rnd() > 0.18 ? `55519${String(80000000 + i * 137).slice(0, 8)}` : undefined,
       email: `contato@${slug}.com.br`,
-      address: `Rua ${SUFFIX[Math.floor(rnd() * SUFFIX.length)]}, ${100 + Math.floor(rnd() * 1800)}`,
+      address: `Rua ${pick(SUFFIX, rnd())}, ${100 + Math.floor(rnd() * 1800)}`,
       district,
       city: loc.city,
       state: loc.state,
@@ -211,7 +215,7 @@ export function buildCompanies(count = 96): Company[] {
       lng: loc.lng + (rnd() - 0.5) * 0.06,
       rating: Math.round((3.4 + rnd() * 1.6) * 10) / 10,
       reviews: Math.floor(rnd() * 480),
-      brandColor: COLORS[Math.floor(rnd() * COLORS.length)],
+      brandColor: pick(COLORS, rnd()),
       logoText: name
         .split(" ")
         .map((w) => w[0])
