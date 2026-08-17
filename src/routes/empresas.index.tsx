@@ -169,6 +169,9 @@ function EmpresasPage() {
                     )}
                   </td>
                   <td className="p-3 text-xs text-muted-foreground">{c.whatsapp ? "Sim" : "—"}</td>
+                  <td className="p-3 text-xs tabular-nums text-muted-foreground">
+                    {c.rating ? `${c.rating.toFixed(1)} (${c.reviews ?? 0})` : "—"}
+                  </td>
                   <td className="p-3">
                     <ScoreBadge company={c} />
                   </td>
