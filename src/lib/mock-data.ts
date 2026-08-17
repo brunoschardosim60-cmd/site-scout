@@ -204,12 +204,15 @@ const STATUSES: ProspectStatus[] = [
 const NOW = new Date("2026-08-17T12:00:00Z").getTime();
 const DAY = 86400000;
 
-export function buildCompanies(count = 640): Company[] {
+/** Gera `perCity` empresas para CADA cidade cadastrada (mín. 50 por região). */
+export function buildCompanies(perCity = 50): Company[] {
   const rnd = mulberry32(20260817);
   const list: Company[] = [];
-  for (let i = 0; i < count; i++) {
+  let i = -1;
+  for (const loc of CITIES) {
+    for (let k = 0; k < perCity; k++) {
+    i++;
     const seg = pick(SEGMENTS, rnd());
-    const loc = pick(CITIES, rnd());
     const district = pick(loc.districts, rnd());
     const name = `${pick(PREFIX[seg] ?? ["Empresa"], rnd())} ${pick(SUFFIX, rnd())}`;
     const hasSite = rnd() > 0.42;
