@@ -1,0 +1,112 @@
+import type { Company } from "./types";
+import { opportunityOf, scoreCompany } from "./scoring";
+
+export const NEXA_KEY = "prospecta.nexa.baseurl";
+export const NEXA_DEFAULT = "https://nexa-xi-puce.vercel.app/criar";
+
+export function getNexaBase() {
+  if (typeof localStorage === "undefined") return NEXA_DEFAULT;
+  return localStorage.getItem(NEXA_KEY) || NEXA_DEFAULT;
+}
+
+/** Payload enviado ao gerador de mini sites (Nexa). */
+export function nexaPayload(company: Company, seller: string) {
+  const { score, reasons } = scoreCompany(company);
+  return {
+    origem: "prospecta-crm",
+    vendedor: seller,
+    empresa: {
+      id: company.id,
+      nome: company.name,
+      razao_social: company.legalName ?? "",
+      cnpj: company.cnpj ?? "",
+      responsavel: company.ownerName ?? "",
+      cargo: company.ownerRole ?? "",
+      telefone: company.phone ?? "",
+      whatsapp: company.whatsapp ?? "",
+      email: company.email ?? "",
+      endereco: company.address,
+      bairro: company.district,
+      cidade: company.city,
+      estado: company.state,
+      cep: company.zip,
+      segmento: company.segment,
+      site_atual: company.site.url ?? "",
+      instagram: company.instagram ?? "",
+      facebook: company.facebook ?? "",
+      google_maps: company.mapsUrl ?? "",
+      lat: company.lat,
+      lng: company.lng,
+      avaliacao: company.rating ?? null,
+      avaliacoes: company.reviews ?? 0,
+    },
+    marca: {
+      cor_primaria: company.brandColor,
+      iniciais: company.logoText,
+      logo_url: logoDataUrl(company),
+    },
+    prospeccao: {
+      score,
+      oportunidade: opportunityOf(company),
+      motivos: reasons,
+      status: company.status,
+    },
+  };
+}
+
+function b64(str: string) {
+  if (typeof window === "undefined") return "";
+  return window.btoa(unescape(encodeURIComponent(str)));
+}
+
+export function nexaUrl(company: Company, seller: string) {
+  const payload = nexaPayload(company, seller);
+  const base = getNexaBase();
+  const url = new URL(base);
+  url.searchParams.set("nome", company.name);
+  url.searchParams.set("segmento", company.segment);
+  url.searchParams.set("cidade", company.city);
+  url.searchParams.set("estado", company.state);
+  url.searchParams.set("bairro", company.district);
+  url.searchParams.set("endereco", company.address);
+  url.searchParams.set("cep", company.zip);
+  if (company.phone) url.searchParams.set("telefone", company.phone);
+  if (company.whatsapp) url.searchParams.set("whatsapp", company.whatsapp);
+  if (company.email) url.searchParams.set("email", company.email);
+  if (company.instagram) url.searchParams.set("instagram", company.instagram);
+  if (company.facebook) url.searchParams.set("facebook", company.facebook);
+  if (company.mapsUrl) url.searchParams.set("maps", company.mapsUrl);
+  url.searchParams.set("cor", company.brandColor);
+  url.searchParams.set("iniciais", company.logoText);
+  url.searchParams.set("logo", logoDataUrl(company));
+  url.searchParams.set("template", "mini-site");
+  url.searchParams.set("data", b64(JSON.stringify(payload)));
+  return url.toString();
+}
+
+/** Logo SVG gerada com a cor e iniciais da empresa (data URL, pronto para download). */
+export function logoSvg(company: Company) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${company.brandColor}"/><stop offset="100%" stop-color="${company.brandColor}bb"/></linearGradient></defs><rect width="512" height="512" rx="96" fill="url(#g)"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-family="Space Grotesk, Arial, sans-serif" font-size="200" font-weight="700" fill="#ffffff">${company.logoText}</text></svg>`;
+}
+
+export function logoDataUrl(company: Company) {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(logoSvg(company))}`;
+}
+
+export function download(filename: string, content: string, mime = "application/json") {
+  const blob = new Blob([content], { type: mime });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+export function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
