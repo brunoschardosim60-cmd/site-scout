@@ -29,7 +29,7 @@ export const Route = createFileRoute("/empresas/$id")({
   component: CompanyProfile,
 });
 
-function Field({ label, value }: { label: string; value?: string | number | null }) {
+function Field({ label, value }: { label: string; value?: string | number | null | undefined }) {
   return (
     <div>
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
@@ -38,7 +38,7 @@ function Field({ label, value }: { label: string; value?: string | number | null
   );
 }
 
-function Flag({ ok, label }: { ok?: boolean; label: string }) {
+function Flag({ ok, label }: { ok?: boolean | undefined; label: string }) {
   return (
     <li className="flex items-center gap-2 text-sm">
       {ok ? <Check className="size-4 text-success" /> : <X className="size-4 text-destructive" />}
@@ -295,7 +295,10 @@ function CompanyProfile() {
                 size="sm"
                 variant="brand"
                 onClick={() => {
-                  if (!followDate) return toast.error("Escolha uma data");
+                  if (!followDate) {
+                    toast.error("Escolha uma data");
+                    return;
+                  }
                   store.addFollowUp(company.id, followDate, followNote);
                   toast.success("Follow-up agendado");
                 }}
