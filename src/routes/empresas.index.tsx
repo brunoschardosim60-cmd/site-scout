@@ -39,7 +39,7 @@ type Sort =
   | "nunca_contatados";
 
 function EmpresasPage() {
-  const { companies, logContact } = useStore();
+  const { companies, logContact, cap, totalAvailable, loadMoreCompanies } = useStore();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<Sort>("simples_completa");
   const [limit, setLimit] = useState(200);
