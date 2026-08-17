@@ -24,10 +24,25 @@ export function NexaActions({ company }: { company: Company }) {
     <div className="grid gap-2 sm:grid-cols-2">
       <Button
         variant="brand"
-        onClick={() => window.open(nexaUrl(company, seller), "_blank", "noopener")}
+        onClick={() => {
+          const dados = [
+            `Empresa: ${company.name}`,
+            `Responsável: ${company.ownerName ?? "-"}`,
+            `WhatsApp: ${company.whatsapp ?? company.phone ?? "-"}`,
+            `E-mail: ${company.email ?? "-"}`,
+            `Segmento: ${company.segment}`,
+            `Endereço: ${company.address}, ${company.district} — ${company.city}/${company.state}`,
+            `Instagram: ${company.instagram ?? "-"}`,
+            `Cor da marca: ${company.brandColor} · Iniciais: ${company.logoText}`,
+          ].join("\n");
+          navigator.clipboard?.writeText(dados).catch(() => undefined);
+          window.open(nexaUrl(company, seller), "_blank", "noopener");
+          toast.success("Abrindo criação no Nexa — dados do cliente copiados");
+        }}
       >
         <Sparkles className="size-4" /> Criar mini site no Nexa
       </Button>
+
       <Button
         variant="outline"
         onClick={() => {
