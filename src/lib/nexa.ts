@@ -2,20 +2,22 @@ import type { Company } from "./types";
 import { opportunityOf, scoreCompany } from "./scoring";
 
 export const NEXA_KEY = "prospecta.nexa.baseurl";
-export const NEXA_DEFAULT = "https://nexa-xi-puce.vercel.app/painel";
+export const NEXA_DEFAULT = "https://nexa-xi-puce.vercel.app/painel/novo";
 
 /** Caminhos válidos conhecidos no gerador Nexa. */
 export const NEXA_PATHS = [
-  { value: "https://nexa-xi-puce.vercel.app/painel", label: "Painel (criar mini site)" },
-  { value: "https://nexa-xi-puce.vercel.app/cadastro", label: "Cadastro" },
-  { value: "https://nexa-xi-puce.vercel.app/modelos", label: "Modelos" },
+  { value: "https://nexa-xi-puce.vercel.app/painel/novo", label: "Criar novo mini-site" },
+  { value: "https://nexa-xi-puce.vercel.app/painel", label: "Painel" },
+  { value: "https://nexa-xi-puce.vercel.app/painel/clientes", label: "Clientes" },
+  { value: "https://nexa-xi-puce.vercel.app/painel/modelos", label: "Modelos" },
 ];
 
 export function getNexaBase() {
   if (typeof localStorage === "undefined") return NEXA_DEFAULT;
   const saved = localStorage.getItem(NEXA_KEY);
   // "/criar" não existe no Nexa (404) — corrige valores antigos salvos no navegador.
-  if (!saved || /\/criar\/?$/.test(saved)) return NEXA_DEFAULT;
+  // "/criar" não existe (404) e "/painel" abre só o painel — força a tela de criação.
+  if (!saved || /\/criar\/?$/.test(saved) || /\/painel\/?$/.test(saved)) return NEXA_DEFAULT;
   return saved;
 }
 
@@ -73,7 +75,9 @@ export function nexaUrl(company: Company, seller: string) {
   const payload = nexaPayload(company, seller);
   const base = getNexaBase();
   const url = new URL(base);
+  url.searchParams.set("empresa", company.name);
   url.searchParams.set("nome", company.name);
+  if (company.ownerName) url.searchParams.set("responsavel", company.ownerName);
   url.searchParams.set("segmento", company.segment);
   url.searchParams.set("cidade", company.city);
   url.searchParams.set("estado", company.state);
@@ -89,6 +93,8 @@ export function nexaUrl(company: Company, seller: string) {
   url.searchParams.set("cor", company.brandColor);
   url.searchParams.set("iniciais", company.logoText);
   url.searchParams.set("template", "mini-site");
+  url.searchParams.set("logo", logoDataUrl(company));
+  url.searchParams.set("slug", slugify(company.name));
   url.searchParams.set("data", b64(JSON.stringify(payload)));
   return url.toString();
 }

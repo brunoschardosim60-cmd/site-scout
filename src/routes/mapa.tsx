@@ -29,6 +29,8 @@ function MapaPage() {
   const [selected, setSelected] = useState<string | undefined>(undefined);
 
   const filtered = useMemo(() => applyFilters(companies, filters), [companies, filters]);
+  // limite de marcadores para manter o mapa fluido com milhares de empresas
+  const plotted = useMemo(() => filtered.slice(0, 600), [filtered]);
   const company = filtered.find((c) => c.id === selected) ?? companies.find((c) => c.id === selected);
   const center = filters.radiusCity
     ? CITY_CENTERS[filters.radiusCity]
@@ -44,6 +46,9 @@ function MapaPage() {
           <div className="surface-card space-y-1 p-4 text-xs text-muted-foreground">
             <p>🔴 Sem site · 🟠 Site fraco · 🟡 Moderado · 🟢 Presença forte</p>
             <p>Clique num marcador para abrir os dados da empresa.</p>
+            {filtered.length > plotted.length && (
+              <p>Mostrando {plotted.length} de {filtered.length} empresas — refine os filtros.</p>
+            )}
           </div>
         </div>
 
@@ -52,7 +57,7 @@ function MapaPage() {
             fallback={<div className="flex h-full items-center justify-center text-sm text-muted-foreground">Carregando mapa…</div>}
           >
             <MapView
-              companies={filtered}
+              companies={plotted}
               selectedId={selected}
               onSelect={setSelected}
               center={center}
