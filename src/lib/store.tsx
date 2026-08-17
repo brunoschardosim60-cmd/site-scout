@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { Activity, Company, FollowUp, MessageTemplate, Proposal, ProspectStatus } from "./types";
 import { buildActivities, buildCompanies, buildFollowUps, buildTemplates, SEGMENTS } from "./mock-data";
 
-const KEY = "prospecta.state.v3";
+const KEY = "prospecta.state.v4";
 
 type State = {
   companies: Company[];
@@ -12,6 +12,8 @@ type State = {
   templates: MessageTemplate[];
   segments: string[];
   seller: string;
+  /** Alterações feitas pelo usuário nas empresas (as empresas em si não vão pro localStorage). */
+  patches: Record<string, Partial<Company>>;
 };
 
 function seed(): State {
@@ -24,8 +26,14 @@ function seed(): State {
     templates: buildTemplates(),
     segments: SEGMENTS,
     seller: "Bruno",
+    patches: {},
   };
 }
+
+/** O que realmente vai para o localStorage (empresas/atividades em massa ficam só em memória). */
+type Persisted = Pick<State, "proposals" | "templates" | "segments" | "seller" | "patches"> & {
+  followups: FollowUp[];
+};
 
 type Ctx = State & {
   setStatus: (companyId: string, status: ProspectStatus) => void;
@@ -53,7 +61,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setState((s) => ({ ...s, ...(JSON.parse(raw) as State) }));
+      if (!raw) return;
+      const saved = JSON.parse(raw) as Partial<Persisted>;
+      setState((s) => {
+        const patches = saved.patches ?? {};
+        return {
+          ...s,
+          ...saved,
+          patches,
+          companies: s.companies.map((c) => (patches[c.id] ? { ...c, ...patches[c.id] } : c)),
+        };
+      });
     } catch {
       /* ignore */
     }
@@ -62,7 +80,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const t = setTimeout(() => {
       try {
-        localStorage.setItem(KEY, JSON.stringify(state));
+        const persisted: Persisted = {
+          proposals: state.proposals,
+          templates: state.templates,
+          segments: state.segments,
+          seller: state.seller,
+          patches: state.patches,
+          followups: state.followups,
+        };
+        localStorage.setItem(KEY, JSON.stringify(persisted));
       } catch {
         /* quota excedida — segue em memória */
       }
@@ -74,6 +100,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setState((s) => ({
       ...s,
       companies: s.companies.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+      patches: { ...s.patches, [id]: { ...(s.patches[id] ?? {}), ...patch } },
     }));
   }, []);
 

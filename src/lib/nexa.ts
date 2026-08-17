@@ -125,3 +125,38 @@ export function slugify(s: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
+
+/** Baixa as logos (SVG + PNG) de várias empresas num único .zip. */
+export async function downloadLogosZip(companies: Company[], filename = "logos-empresas.zip") {
+  const { default: JSZip } = await import("jszip");
+  const zip = new JSZip();
+  for (const c of companies) {
+    const slug = slugify(c.name);
+    zip.file(`${slug}/${slug}-logo.svg`, logoSvg(c));
+    zip.file(`${slug}/${slug}-dados.json`, JSON.stringify(nexaPayload(c, "-"), null, 2));
+  }
+  const blob = await zip.generateAsync({ type: "blob" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/** Converte a logo SVG em PNG (512px) e baixa. */
+export async function downloadLogoPng(company: Company) {
+  const img = new Image();
+  img.src = logoDataUrl(company);
+  await new Promise((res, rej) => {
+    img.onload = res;
+    img.onerror = rej;
+  });
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+  canvas.getContext("2d")?.drawImage(img, 0, 0, 512, 512);
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = `${slugify(company.name)}-logo.png`;
+  a.click();
+}

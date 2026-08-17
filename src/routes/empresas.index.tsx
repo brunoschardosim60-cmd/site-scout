@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { MessageCircle, Map as MapIcon, Globe, Eye } from "lucide-react";
+import { MessageCircle, Map as MapIcon, Globe, Eye, Download } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { FilterBar, EMPTY_FILTERS, applyFilters, type Filters } from "@/components/FilterBar";
 import { ScoreBadge, StatusBadge } from "@/components/badges";
 import { Button } from "@/components/ui/button";
+import { CompanyLogoCell } from "@/components/CompanyLogo";
+import { downloadLogosZip } from "@/lib/nexa";
 import { useStore } from "@/lib/store";
 import { scoreCompany } from "@/lib/scoring";
 import { toast } from "sonner";
@@ -30,6 +32,8 @@ function EmpresasPage() {
   const { companies, logContact } = useStore();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [sort, setSort] = useState<Sort>("score_desc");
+  const [limit, setLimit] = useState(200);
+  const [zipping, setZipping] = useState(false);
 
   const rows = useMemo(() => {
     const list = applyFilters(companies, filters);
@@ -53,6 +57,8 @@ function EmpresasPage() {
     return sorted;
   }, [companies, filters, sort]);
 
+  const visible = useMemo(() => rows.slice(0, limit), [rows, limit]);
+
   return (
     <AppShell title="Empresas" subtitle={`${rows.length} resultados`}>
       <div className="space-y-4">
@@ -72,12 +78,35 @@ function EmpresasPage() {
             <option value="recentes">Mais recentes</option>
             <option value="nunca_contatados">Nunca contatados</option>
           </select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto"
+            disabled={zipping}
+            onClick={async () => {
+              const batch = rows.slice(0, 500);
+              setZipping(true);
+              toast.info(`Gerando .zip com ${batch.length} logos…`);
+              try {
+                await downloadLogosZip(batch, "logos-empresas.zip");
+                toast.success("Logos baixadas");
+              } catch {
+                toast.error("Não foi possível gerar o .zip");
+              } finally {
+                setZipping(false);
+              }
+            }}
+          >
+            <Download className="size-4" /> {zipping ? "Gerando…" : "Baixar logos (até 500)"}
+          </Button>
         </div>
 
         <div className="surface-card overflow-x-auto">
           <table className="w-full min-w-[900px] text-sm">
             <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
+                <th className="p-3">Logo</th>
                 <th className="p-3">Empresa</th>
                 <th className="p-3">Segmento</th>
                 <th className="p-3">Cidade</th>
@@ -90,8 +119,11 @@ function EmpresasPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((c) => (
+              {visible.map((c) => (
                 <tr key={c.id} className="border-b border-border/60 last:border-0 hover:bg-accent/40">
+                  <td className="p-3">
+                    <CompanyLogoCell company={c} />
+                  </td>
                   <td className="p-3">
                     <Link to="/empresas/$id" params={{ id: c.id }} className="font-medium hover:underline">
                       {c.name}
@@ -170,6 +202,16 @@ function EmpresasPage() {
           </table>
           {rows.length === 0 && (
             <p className="p-6 text-center text-sm text-muted-foreground">Nenhuma empresa com esses filtros.</p>
+          )}
+          {visible.length < rows.length && (
+            <div className="flex items-center justify-center gap-3 p-4">
+              <span className="text-xs text-muted-foreground">
+                Mostrando {visible.length} de {rows.length}
+              </span>
+              <Button variant="secondary" size="sm" onClick={() => setLimit((l) => l + 200)}>
+                Carregar mais 200
+              </Button>
+            </div>
           )}
         </div>
       </div>
