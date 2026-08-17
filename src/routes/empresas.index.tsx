@@ -26,7 +26,17 @@ export const Route = createFileRoute("/empresas/")({
   component: EmpresasPage,
 });
 
-type Sort = "score_desc" | "score_asc" | "cidade" | "segmento" | "recentes" | "nunca_contatados";
+type Sort =
+  | "simples_completa"
+  | "completa_simples"
+  | "avaliacao_asc"
+  | "avaliacao_desc"
+  | "score_desc"
+  | "score_asc"
+  | "cidade"
+  | "segmento"
+  | "recentes"
+  | "nunca_contatados";
 
 function EmpresasPage() {
   const { companies, logContact } = useStore();
