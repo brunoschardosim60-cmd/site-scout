@@ -89,6 +89,10 @@ function EmpresasPage() {
             onChange={(e) => setSort(e.target.value as Sort)}
             className="h-9 rounded-md border border-input bg-background px-2 text-sm"
           >
+            <option value="simples_completa">Da mais simples à mais completa</option>
+            <option value="completa_simples">Da mais completa à mais simples</option>
+            <option value="avaliacao_asc">Menor avaliação → maior</option>
+            <option value="avaliacao_desc">Maior avaliação → menor</option>
             <option value="score_desc">Maior score</option>
             <option value="score_asc">Menor score</option>
             <option value="cidade">Cidade</option>
