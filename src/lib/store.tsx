@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { Activity, Company, FollowUp, MessageTemplate, Proposal, ProspectStatus } from "./types";
 import { buildActivities, buildCompanies, buildFollowUps, buildTemplates, SEGMENTS } from "./mock-data";
 
-const KEY = "prospecta.state.v3";
+const KEY = "prospecta.state.v4";
 
 type State = {
   companies: Company[];
@@ -12,6 +12,8 @@ type State = {
   templates: MessageTemplate[];
   segments: string[];
   seller: string;
+  /** Alterações feitas pelo usuário nas empresas (as empresas em si não vão pro localStorage). */
+  patches: Record<string, Partial<Company>>;
 };
 
 function seed(): State {
