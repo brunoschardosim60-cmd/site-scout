@@ -1,16 +1,22 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Activity, Company, FollowUp, MessageTemplate, Proposal, ProspectStatus } from "./types";
 import {
   buildActivities,
-  buildCityCompanies,
+  buildCompaniesRange,
   buildFollowUps,
   buildTemplates,
-  CITY_COUNT,
-  PER_CITY,
   SEGMENTS,
+  TOTAL_COMPANIES,
 } from "./mock-data";
 
-const KEY = "prospecta.state.v5";
+const KEY = "prospecta.state.v6";
+
+/** Carregamento em etapas: 100 empresas por vez, com teto de memória. */
+const CHUNK = 100;
+const INITIAL = 300;
+const DEFAULT_CAP = 5000;
+const CAP_STEP = 5000;
+const MAX_CAP = 50000;
 
 type State = {
   companies: Company[];
@@ -24,9 +30,9 @@ type State = {
   patches: Record<string, Partial<Company>>;
 };
 
-/** Lote inicial leve (renderiza rápido); o restante entra em background no cliente. */
+/** Lote inicial leve (renderiza rápido); o restante entra em background, 100 em 100. */
 function seed(): State {
-  const companies = buildCityCompanies(0, 400);
+  const companies = buildCompaniesRange(0, INITIAL);
   return {
     companies,
     activities: buildActivities(companies),
@@ -43,6 +49,7 @@ function seed(): State {
 type Persisted = Pick<State, "proposals" | "templates" | "segments" | "seller" | "patches"> & {
   followups: FollowUp[];
 };
+
 
 type Ctx = State & {
   setStatus: (companyId: string, status: ProspectStatus) => void;
