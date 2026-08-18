@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import type { Json } from "@/integrations/supabase/types";
 import { auditSite, scoreFromAudit, type SiteAudit } from "./site-audit.server";
 
 const buscaSchema = z.object({
@@ -126,7 +127,7 @@ export const buscarEmpresasReais = createServerFn({ method: "POST" })
         reviews: p.userRatingCount ?? null,
         maps_url: p.googleMapsUri ?? null,
         segment: data.segmento,
-        site_audit: audit as unknown as Record<string, unknown>,
+        site_audit: JSON.parse(JSON.stringify(audit)) as Json,
         score: scoreFromAudit(audit),
       };
     });
@@ -186,9 +187,9 @@ export const atualizarEmpresaReal = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = {};
-    if (data.status) patch["status"] = data.status;
-    if (data.registrarContato) patch["last_contact_at"] = new Date().toISOString();
+    const patch: { status?: string; last_contact_at?: string } = {};
+    if (data.status) patch.status = data.status;
+    if (data.registrarContato) patch.last_contact_at = new Date().toISOString();
 
     if (Object.keys(patch).length > 0) {
       const { error } = await context.supabase.from("empresas").update(patch).eq("id", data.id);
