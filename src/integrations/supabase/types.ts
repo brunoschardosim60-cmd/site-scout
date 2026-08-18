@@ -14,7 +14,217 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      atividades: {
+        Row: {
+          channel: string | null
+          created_at: string
+          empresa_id: string
+          id: string
+          note: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          empresa_id: string
+          id?: string
+          note?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          empresa_id?: string
+          id?: string
+          note?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atividades_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      configuracoes: {
+        Row: {
+          created_at: string
+          nexa_url: string
+          seller_name: string
+          templates: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          nexa_url?: string
+          seller_name?: string
+          templates?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          nexa_url?: string
+          seller_name?: string
+          templates?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      empresas: {
+        Row: {
+          address: string | null
+          city: string | null
+          cnpj: string | null
+          created_at: string
+          district: string | null
+          email: string | null
+          id: string
+          last_contact_at: string | null
+          lat: number | null
+          legal_name: string | null
+          lng: number | null
+          maps_url: string | null
+          name: string
+          notes: string | null
+          owner_name: string | null
+          phone: string | null
+          photo_url: string | null
+          place_id: string | null
+          rating: number | null
+          reviews: number | null
+          score: number | null
+          segment: string | null
+          site_audit: Json
+          situacao_cadastral: string | null
+          state: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          website: string | null
+          whatsapp: string | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          district?: string | null
+          email?: string | null
+          id?: string
+          last_contact_at?: string | null
+          lat?: number | null
+          legal_name?: string | null
+          lng?: number | null
+          maps_url?: string | null
+          name: string
+          notes?: string | null
+          owner_name?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          place_id?: string | null
+          rating?: number | null
+          reviews?: number | null
+          score?: number | null
+          segment?: string | null
+          site_audit?: Json
+          situacao_cadastral?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          district?: string | null
+          email?: string | null
+          id?: string
+          last_contact_at?: string | null
+          lat?: number | null
+          legal_name?: string | null
+          lng?: number | null
+          maps_url?: string | null
+          name?: string
+          notes?: string | null
+          owner_name?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          place_id?: string | null
+          rating?: number | null
+          reviews?: number | null
+          score?: number | null
+          segment?: string | null
+          site_audit?: Json
+          situacao_cadastral?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+          whatsapp?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
+      followups: {
+        Row: {
+          created_at: string
+          done: boolean
+          due_date: string
+          empresa_id: string
+          id: string
+          note: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          done?: boolean
+          due_date: string
+          empresa_id: string
+          id?: string
+          note?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          done?: boolean
+          due_date?: string
+          empresa_id?: string
+          id?: string
+          note?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followups_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
