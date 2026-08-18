@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Map as MapIcon,
   Building2,
+  Search,
   Target,
   BellRing,
   MessageSquare,
@@ -21,7 +22,8 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/mapa", label: "Mapa", icon: MapIcon },
-  { to: "/empresas", label: "Empresas", icon: Building2 },
+  { to: "/buscar", label: "Empresas reais", icon: Search },
+  { to: "/empresas", label: "Empresas (demo)", icon: Building2 },
   { to: "/prospeccao", label: "Prospecção", icon: Target },
   { to: "/followups", label: "Follow-ups", icon: BellRing },
   { to: "/mensagens", label: "Mensagens", icon: MessageSquare },
